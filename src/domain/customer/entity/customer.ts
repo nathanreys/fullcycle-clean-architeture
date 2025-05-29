@@ -1,5 +1,6 @@
 import Entity from "../../@shared/entity/entity.abstract";
 import NotificationError from "../../@shared/notification/notification.error";
+import CustomerValidatorFactory from "../factory/customer.validator.factory";
 import Address from "../value-object/address";
 
 export default class Customer extends Entity {
@@ -9,15 +10,11 @@ export default class Customer extends Entity {
     private _rewardPoints: number = 0;
 
     constructor(id: string, name: string) {
-        super(); 
+        super();
 
         this._id = id;
         this._name = name;
         this.validate();
-
-        if (this.notification.hasErrors()) {
-            throw new NotificationError(this.notification.getErrors());
-        }
     }
 
     get name(): string {
@@ -25,26 +22,18 @@ export default class Customer extends Entity {
     }
 
     get rewardPoints(): number {
-        return this._rewardPoints;  
+        return this._rewardPoints;
     }
 
     get address(): Address {
         return this._address;
     }
-    
-    validate() {
-        if (this.id.length === 0) {
-            this.notification.addError({
-                message: "Id is required",
-                context: "customer"
-            })
-        }
 
-        if (this._name.length === 0) {
-            this.notification.addError({
-                message: "Name is required",
-                context: "customer"
-            })
+    validate() {
+        CustomerValidatorFactory.create().validate(this);
+
+        if (this.notification.hasErrors()) {
+            throw new NotificationError(this.notification.getErrors());
         }
     }
 
@@ -54,7 +43,7 @@ export default class Customer extends Entity {
     }
 
     changeAddress(address: Address) {
-        this._address = address;    
+        this._address = address;
     }
 
     activate() {
@@ -75,5 +64,5 @@ export default class Customer extends Entity {
 
     addRewardPoints(points: number) {
         this._rewardPoints += points;
-    }    
+    }
 }
